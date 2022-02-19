@@ -4,7 +4,7 @@
         <h3>You have {{ todosCount }} Todos!</h3>
         <div>
             <input
-                    v-model="newTodoName"
+                    v-model="data.newTodoName"
                     placeholder="Add a Todo"
                     type="text"
                     @keyup.enter="addTodo"
@@ -13,7 +13,7 @@
         <div>
             <ul>
                 <li
-                        v-for="(todo, index) in todos"
+                        v-for="(todo, index) in data.todos"
                         :key="todo.id"
                 >
                     <span>{{ todo.name }}</span>
@@ -26,48 +26,46 @@
 
 <script>
 
-    import {ref, computed, watch} from 'vue';
+    import { reactive,  computed, watch } from 'vue';
 
     export default {
 
         setup() {
-            let newTodoName = ref('') //ref - чтобы переменная была реактивной
-            let todos = ref([])
-            /*
-             Т.к. переменная swearwords меняться не будет, то его не нужно делать
-             реактивной и не тужно передавать в блоке return
-             Просто сделать константой
-            */
+
             const swearwords = ['fart', 'butt hair', 'willy']
+
+            let data = reactive({
+                newTodoName: '',
+                todos: [],
+            })
 
 
             function addTodo() {
                 let newTodo = {
                     id: Date.now(),
-                    name: newTodoName.value
+                    name: data.newTodoName
                 }
-                todos.value.push(newTodo)
-                newTodoName.value = ''
+                data.todos.push(newTodo)
+                data.newTodoName = ''
             }
 
             function deleteTodo(index) {
-                todos.value.splice(index, 1)
+                data.todos.splice(index, 1)
             }
 
             let todosCount = computed(() => {
-                return todos.value.length
+                return data.todos.length
             })
 
-            watch(newTodoName, (newValue) => {
-                if (swearwords.includes(newValue.toLowerCase())) { // нет .value т.к. swearwords - не реактивная переменная
-                    newTodoName.value = ''
-                    alert('You must NEVER say ' + newValue + '!!')
+            watch(data, (newValue) => {
+                if (swearwords.includes(newValue.newTodoName.toLowerCase())) { // нет .value т.к. swearwords - не реактивная переменная
+                    alert('You must NEVER say ' + newValue.newTodoName + '!!')
+                    data.newTodoName = ''
                 }
             })
 
             return {
-                newTodoName,
-                todos,
+                data,
                 addTodo,
                 deleteTodo,
                 todosCount
